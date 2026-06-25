@@ -7,6 +7,9 @@ import { Config } from "../../src/config/config"
 import { TuiConfig } from "../../src/config/tui"
 import { Global } from "../../src/global"
 import { Filesystem } from "../../src/util/filesystem"
+import { initProjectors } from "../../src/server/projectors"
+
+initProjectors()
 
 const managedConfigDir = process.env.MEGON_TEST_MANAGED_CONFIG_DIR!
 const wintest = process.platform === "win32" ? test : test.skip

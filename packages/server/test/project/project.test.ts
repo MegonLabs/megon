@@ -11,8 +11,10 @@ import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process"
 import { NodeFileSystem, NodePath } from "@effect/platform-node"
 import { AppFileSystem } from "../../src/filesystem"
 import * as CrossSpawnSpawner from "../../src/effect/cross-spawn-spawner"
+import { initProjectors } from "../../src/server/projectors"
 
 Log.init({ print: false })
+initProjectors()
 
 const encoder = new TextEncoder()
 

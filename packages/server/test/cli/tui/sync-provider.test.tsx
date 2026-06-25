@@ -7,6 +7,9 @@ import { ExitProvider } from "../../../src/cli/cmd/tui/context/exit"
 import { ProjectProvider, useProject } from "../../../src/cli/cmd/tui/context/project"
 import { SDKProvider } from "../../../src/cli/cmd/tui/context/sdk"
 import { SyncProvider, useSync } from "../../../src/cli/cmd/tui/context/sync"
+import { initProjectors } from "../../../src/server/projectors"
+
+initProjectors()
 
 const sighup = new Set(process.listeners("SIGHUP"))
 

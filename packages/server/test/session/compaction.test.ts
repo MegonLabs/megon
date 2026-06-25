@@ -13,6 +13,7 @@ import { Token } from "../../src/util/token"
 import { Instance } from "../../src/project/instance"
 import { Log } from "../../src/util/log"
 import { Permission } from "../../src/permission"
+import { initProjectors } from "../../src/server/projectors"
 import { Plugin } from "../../src/plugin"
 import { tmpdir } from "../fixture/fixture"
 import { Session } from "../../src/session"
@@ -26,6 +27,7 @@ import { Snapshot } from "../../src/snapshot"
 import { ProviderTest } from "../fake/provider"
 
 Log.init({ print: false })
+initProjectors()
 
 const ref = {
   providerID: ProviderID.make("test"),

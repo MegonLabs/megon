@@ -9,6 +9,9 @@ import { ModelID, ProviderID } from "../../src/provider/schema"
 import * as CrossSpawnSpawner from "../../src/effect/cross-spawn-spawner"
 import { provideTmpdirInstance } from "../fixture/fixture"
 import { testEffect } from "../lib/effect"
+import { initProjectors } from "../../src/server/projectors"
+
+initProjectors()
 
 const layer = Layer.mergeAll(
   Session.defaultLayer,

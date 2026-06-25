@@ -6,6 +6,9 @@ import { PermissionID } from "../../src/permission/schema"
 import { Instance } from "../../src/project/instance"
 import { tmpdir } from "../fixture/fixture"
 import { MessageID, SessionID } from "../../src/session/schema"
+import { initProjectors } from "../../src/server/projectors"
+
+initProjectors()
 
 afterEach(async () => {
   await Instance.disposeAll()

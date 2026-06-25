@@ -23,6 +23,7 @@ import { SessionRevert } from "../../src/session/revert"
 import { SessionSummary } from "../../src/session/summary"
 import { MessageV2 } from "../../src/session/message-v2"
 import { Log } from "../../src/util/log"
+import { initProjectors } from "../../src/server/projectors"
 import { provideTmpdirServer } from "../fixture/fixture"
 import { testEffect } from "../lib/effect"
 import { TestLLMServer } from "../lib/llm-server"
@@ -58,6 +59,7 @@ import { Ripgrep } from "../../src/file/ripgrep"
 import { Format } from "../../src/format"
 
 Log.init({ print: false })
+initProjectors()
 
 const mcp = Layer.succeed(
   MCP.Service,

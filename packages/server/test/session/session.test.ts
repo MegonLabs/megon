@@ -3,6 +3,7 @@ import path from "path"
 import { Session } from "../../src/session"
 import { Bus } from "../../src/bus"
 import { Log } from "../../src/util/log"
+import { initProjectors } from "../../src/server/projectors"
 import { Instance } from "../../src/project/instance"
 import { MessageV2 } from "../../src/session/message-v2"
 import { MessageID, PartID } from "../../src/session/schema"
@@ -10,6 +11,7 @@ import { tmpdir } from "../fixture/fixture"
 
 const projectRoot = path.join(__dirname, "../..")
 Log.init({ print: false })
+initProjectors()
 
 describe("session.created event", () => {
   test("should emit session.created event when session is created", async () => {

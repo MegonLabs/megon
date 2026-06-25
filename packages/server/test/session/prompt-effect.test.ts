@@ -37,6 +37,7 @@ import { Snapshot } from "../../src/snapshot"
 import { ToolRegistry } from "../../src/tool/registry"
 import { Truncate } from "../../src/tool/truncate"
 import { Log } from "../../src/util/log"
+import { initProjectors } from "../../src/server/projectors"
 import * as CrossSpawnSpawner from "../../src/effect/cross-spawn-spawner"
 import { Ripgrep } from "../../src/file/ripgrep"
 import { Format } from "../../src/format"
@@ -45,6 +46,7 @@ import { testEffect } from "../lib/effect"
 import { reply, TestLLMServer } from "../lib/llm-server"
 
 Log.init({ print: false })
+initProjectors()
 
 const ref = {
   providerID: ProviderID.make("test"),

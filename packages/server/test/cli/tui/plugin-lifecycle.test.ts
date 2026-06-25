@@ -6,6 +6,9 @@ import { tmpdir } from "../../fixture/fixture"
 import { createTuiPluginApi } from "../../fixture/tui-plugin"
 import { mockTuiRuntime } from "../../fixture/tui-runtime"
 import { TuiConfig } from "../../../src/config/tui"
+import { initProjectors } from "../../../src/server/projectors"
+
+initProjectors()
 
 const { TuiPluginRuntime } = await import("../../../src/cli/cmd/tui/plugin/runtime")
 

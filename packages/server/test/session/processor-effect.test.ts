@@ -2,6 +2,7 @@ import { NodeFileSystem } from "@effect/platform-node"
 import { expect } from "bun:test"
 import { Cause, Effect, Exit, Fiber, Layer } from "effect"
 import path from "path"
+import { initProjectors } from "../../src/server/projectors"
 import type { Agent } from "../../src/agent/agent"
 import { Agent as AgentSvc } from "../../src/agent/agent"
 import { Bus } from "../../src/bus"
@@ -24,6 +25,7 @@ import { testEffect } from "../lib/effect"
 import { raw, reply, TestLLMServer } from "../lib/llm-server"
 
 Log.init({ print: false })
+initProjectors()
 
 const ref = {
   providerID: ProviderID.make("test"),

@@ -12,6 +12,9 @@ import { ProviderID, ModelID } from "../../src/provider/schema"
 import { Filesystem } from "../../src/util/filesystem"
 import { Env } from "../../src/env"
 import { Auth } from "../../src/auth"
+import { initProjectors } from "../../src/server/projectors"
+
+initProjectors()
 
 function paid(providers: Awaited<ReturnType<typeof Provider.list>>) {
   const item = providers[ProviderID.make("Megon")]

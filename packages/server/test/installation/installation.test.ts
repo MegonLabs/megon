@@ -137,7 +137,8 @@ describe("installation", () => {
       const layer = testLayer(
         () => jsonResponse({}), // HTTP not used for tap formula
         (cmd, args) => {
-          if (cmd === "brew" && args.includes("MegonLabs/tap/megon") && args.includes("--formula")) return "Megon"
+          // getBrewFormula checks tapFormula.includes("megon") (lowercase)
+          if (cmd === "brew" && args.includes("MegonLabs/tap/megon") && args.includes("--formula")) return "megon"
           if (cmd === "brew" && args.includes("--json=v2")) return brewInfoJson
           return ""
         },

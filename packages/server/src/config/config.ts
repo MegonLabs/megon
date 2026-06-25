@@ -83,7 +83,9 @@ export namespace Config {
     return process.env.MEGON_TEST_MANAGED_CONFIG_DIR || systemManagedConfigDir()
   }
 
-  const managedDir = managedConfigDir()
+  function getManagedDir() {
+    return managedConfigDir()
+  }
 
   const MANAGED_PLIST_DOMAIN = "ai.megon.managed"
 
@@ -1561,9 +1563,9 @@ export namespace Config {
             )
           }
 
-          if (existsSync(managedDir)) {
+          if (existsSync(getManagedDir())) {
             for (const file of ConfigPaths.CONFIG_NAMES.flatMap((name) => [`${name}.json`, `${name}.jsonc`])) {
-              const source = path.join(managedDir, file)
+              const source = path.join(getManagedDir(), file)
               yield* merge(source, yield* loadFile(source), "global")
             }
           }

@@ -1,6 +1,7 @@
 import { test, expect, describe, mock, afterEach, beforeEach, spyOn } from "bun:test"
 import { Effect, Layer, Option } from "effect"
 import { NodeFileSystem, NodePath } from "@effect/platform-node"
+import os from "os"
 import { Config } from "../../src/config/config"
 import { Instance } from "../../src/project/instance"
 import { Auth } from "../../src/auth"
@@ -32,8 +33,13 @@ const emptyAuth = Layer.mock(Auth.Service)({
   all: () => Effect.succeed({}),
 })
 
-// Get managed config directory from environment (set in preload.ts)
-const managedConfigDir = process.env.MEGON_TEST_MANAGED_CONFIG_DIR!
+// Get managed config directory from environment (set in preload.ts or fallback)
+const managedConfigDir =
+  process.env.MEGON_TEST_MANAGED_CONFIG_DIR || path.join(os.tmpdir(), "megon-test-managed-" + process.pid)
+// Ensure the config module uses the same directory
+if (!process.env.MEGON_TEST_MANAGED_CONFIG_DIR) {
+  process.env.MEGON_TEST_MANAGED_CONFIG_DIR = managedConfigDir
+}
 
 beforeEach(async () => {
   await Config.invalidate(true)
@@ -307,6 +313,9 @@ test("resolves env templates in account config with account token", async () => 
     token: () => Effect.succeed(Option.some(AccessToken.make("st_test_token"))),
   })
 
+  // Set the env var so {env:MEGON_CONSOLE_TOKEN} resolves during config load
+  process.env["MEGON_CONSOLE_TOKEN"] = "st_test_token"
+
   const layer = Config.layer.pipe(
     Layer.provide(AppFileSystem.defaultLayer),
     Layer.provide(emptyAuth),
@@ -319,7 +328,7 @@ test("resolves env templates in account config with account token", async () => 
       Config.Service.use((svc) =>
         Effect.gen(function* () {
           const config = yield* svc.get()
-          expect(config.provider?.["Megon"]?.options?.apiKey).toBe("st_test_token")
+          expect(config.provider?.["megon"]?.options?.apiKey).toBe("st_test_token")
         }),
       ),
     ).pipe(Effect.scoped, Effect.provide(layer), Effect.runPromise)

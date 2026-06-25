@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "name": "megon",
+  "version": "1.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Megon – an AI agent that delivers high-quality coding & automation work",
+  "author": "MegonLabs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MegonLabs/megon.git"
+  },
+  "homepage": "https://megon.org",
+  "bugs": {
+    "url": "https://github.com/MegonLabs/megon/issues"
+  },
+  "keywords": [
+    "ai",
+    "coding",
+    "agent",
+    "cli",
+    "automation",
+    "terminal",
+    "developer-tools",
+    "open-source"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "bin": {
+    "megon": "./bin/megon.cjs"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "dev": "bun run --conditions=browser ../../packages/server/src/index.ts",
+    "build": "bun run script/build.ts",
+    "typecheck": "tsgo --noEmit",
+    "prepack": "bun run build",
+    "prepublishOnly": "bun run build"
+  },
+  "devDependencies": {
+    "@opentui/core": "0.2.14",
+    "@opentui/solid": "0.2.14",
+    "@parcel/watcher": "2.5.1",
+    "@tsconfig/bun": "1.0.9",
+    "@types/bun": "1.3.14",
+    "@typescript/native-preview": "catalog:",
+    "typescript": "catalog:"
+  }
+}

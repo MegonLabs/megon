@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schemastore.org/package.json",
+  "name": "@megon/script",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "main": "./index.ts",
+  "exports": {
+    ".": "./index.ts"
+  }
+}

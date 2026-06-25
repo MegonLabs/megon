@@ -1,0 +1,17 @@
+::highlight(megon-find) {
+  background-color: color-mix(in srgb, var(--surface-warning-base) 40%, transparent);
+}
+
+::highlight(megon-find-current) {
+  background-color: color-mix(in srgb, var(--surface-warning-strong) 55%, transparent);
+  box-shadow: inset 0 0 0 1px var(--border-warning-base);
+}
+
+::highlight(megon-chat-find) {
+  background-color: color-mix(in srgb, var(--surface-warning-base) 40%, transparent);
+}
+
+::highlight(megon-chat-find-current) {
+  background-color: color-mix(in srgb, var(--surface-warning-strong) 55%, transparent);
+  box-shadow: inset 0 0 0 1px var(--border-warning-base);
+}

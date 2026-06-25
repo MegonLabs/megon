@@ -1,0 +1,44 @@
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "../../node_modules/.tmp/apps-desktop-tsconfig.app.tsbuildinfo",
+    "target": "ES2023",
+    "useDefineForClassFields": true,
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "types": ["vite/client"],
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@megon/sdk/*": ["../../packages/sdk/js/src/*"],
+      "@megon/sdk": ["../../packages/sdk/js/src/index.ts"],
+      "@megon/plugin/*": ["../../packages/plugin/src/*"],
+      "@megon/plugin": ["../../packages/plugin/src/index.ts"],
+      "@megon/server/*": ["../../packages/server/src/*"],
+      "@megon/server": ["../../packages/server/src/index.ts"],
+      "@megon/ui/hooks": ["../../packages/ui/src/hooks/index.ts"],
+      "@megon/ui/i18n/*": ["../../packages/ui/src/i18n/*"],
+      "@megon/ui/context/*": ["../../packages/ui/src/context/*"],
+      "@megon/ui/context": ["../../packages/ui/src/context/index.ts"],
+      "@megon/ui/*": ["../../packages/ui/src/components/*"],
+      "@megon/ui": ["../../packages/ui/src/index.ts"],
+      "@megon/util/*": ["../../packages/util/src/*"],
+      "@megon/util": ["../../packages/util/src/index.ts"]
+    },
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": false,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "strict": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "erasableSyntaxOnly": false,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["src"]
+}
+

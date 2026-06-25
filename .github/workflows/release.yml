@@ -1,0 +1,197 @@
+name: CLI Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cli-release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-14
+            target: megon-darwin-arm64
+          - os: macos-13
+            target: megon-darwin-x64
+          - os: ubuntu-22.04
+            target: megon-linux-x64
+          - os: ubuntu-22.04
+            target: megon-linux-arm64
+          - os: windows-2022
+            target: megon-windows-x64
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Verify version tag match
+        shell: bash
+        run: |
+          pkg_version="$(node -p "require('./apps/megon/package.json').version")"
+          tag="${{ github.ref_name }}"
+          if [ "v${pkg_version}" != "${tag}" ]; then
+            echo "::error::Tag ${tag} does not match package version v${pkg_version}"
+            exit 1
+          fi
+
+      - name: Build CLI binary
+        working-directory: packages/server
+        shell: bash
+        run: bun run script/build.ts --target ${{ matrix.target }} --skip-embed-web-ui
+
+      - name: Verify binary exists
+        shell: bash
+        run: |
+          if [ "${{ matrix.target }}" = "megon-windows-x64" ]; then
+            binary="packages/server/dist/${{ matrix.target }}/bin/megon.exe"
+          else
+            binary="packages/server/dist/${{ matrix.target }}/bin/megon"
+          fi
+          if [ ! -f "$binary" ]; then
+            echo "::error::Binary not found at $binary"
+            exit 1
+          fi
+          echo "Binary found: $binary"
+          echo "Binary size: $(du -h "$binary" | cut -f1)"
+
+      - name: Generate checksum
+        shell: bash
+        run: |
+          cd "packages/server/dist/${{ matrix.target }}/bin"
+          if [ "${{ matrix.target }}" = "megon-windows-x64" ]; then
+            sha256sum megon.exe > "checksum-${{ matrix.target }}.txt"
+            cat "checksum-${{ matrix.target }}.txt"
+          else
+            sha256sum megon > "checksum-${{ matrix.target }}.txt"
+            cat "checksum-${{ matrix.target }}.txt"
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: packages/server/dist/${{ matrix.target }}/bin/*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: List release assets
+        run: |
+          echo "=== Downloaded Artifacts ==="
+          find artifacts -type f | sort
+          echo ""
+          echo "=== File Sizes ==="
+          find artifacts -type f -exec du -sh {} \;
+
+      - name: Verify all platform binaries exist
+        run: |
+          required=(
+            "megon-darwin-arm64/megon"
+            "megon-darwin-x64/megon"
+            "megon-linux-x64/megon"
+            "megon-linux-arm64/megon"
+            "megon-windows-x64/megon.exe"
+          )
+          missing=0
+          for asset in "${required[@]}"; do
+            if [ ! -f "artifacts/$asset" ]; then
+              echo "::error::Missing required asset: $asset"
+              missing=$((missing + 1))
+            else
+              echo "OK: $asset ($(du -h "artifacts/$asset" | cut -f1))"
+            fi
+          done
+          if [ "$missing" -gt 0 ]; then
+            echo "::error::$missing required assets are missing"
+            exit 1
+          fi
+          echo "All required assets present."
+
+      - name: Prepare release assets
+        run: |
+          mkdir -p release-assets
+
+          # Copy binaries with release-consistent names
+          cp artifacts/megon-darwin-arm64/megon release-assets/megon-darwin-arm64
+          cp artifacts/megon-darwin-x64/megon release-assets/megon-darwin-x64
+          cp artifacts/megon-linux-x64/megon release-assets/megon-linux-x64
+          cp artifacts/megon-linux-arm64/megon release-assets/megon-linux-arm64
+          cp artifacts/megon-windows-x64/megon.exe release-assets/megon-win32-x64.exe
+
+          # Make binaries executable
+          chmod +x release-assets/megon-darwin-arm64
+          chmod +x release-assets/megon-darwin-x64
+          chmod +x release-assets/megon-linux-x64
+          chmod +x release-assets/megon-linux-arm64
+
+      - name: Generate combined checksums
+        run: |
+          cd release-assets
+          sha256sum \
+            megon-darwin-arm64 \
+            megon-darwin-x64 \
+            megon-linux-x64 \
+            megon-linux-arm64 \
+            megon-win32-x64.exe \
+            > checksums.txt
+          echo "=== SHA256 Checksums ==="
+          cat checksums.txt
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          # Create release (skip if already exists)
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1 || {
+            gh release create "$TAG" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "Megon $TAG" \
+              --generate-notes
+          }
+
+          # Upload all release assets
+          for file in release-assets/megon-*; do
+            [ -f "$file" ] && gh release upload "$TAG" "$file" --repo "$GITHUB_REPOSITORY" --clobber
+          done
+
+          # Upload checksums
+          gh release upload "$TAG" release-assets/checksums.txt --repo "$GITHUB_REPOSITORY" --clobber
+
+          echo ""
+          echo "Release $TAG published successfully."
+          echo ""
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY"

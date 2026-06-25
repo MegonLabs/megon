@@ -1,0 +1,7 @@
+node_modules
+dist
+*.md
+.git
+.turbo
+test
+*.test.ts

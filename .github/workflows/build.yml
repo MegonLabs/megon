@@ -199,7 +199,7 @@ jobs:
 
       - name: Typecheck
         shell: bash
-        run: turbo run typecheck
+        run: bunx turbo run typecheck
 
       - name: Run tests
         shell: bash

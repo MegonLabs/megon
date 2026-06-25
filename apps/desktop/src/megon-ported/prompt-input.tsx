@@ -1933,7 +1933,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                     try {
                       const text = await navigator.clipboard.readText()
                       document.execCommand("insertText", false, text)
-                    } catch {}
+                    } catch { /* clipboard read failed */ }
                     menu.remove()
                   }
 

@@ -20,6 +20,17 @@ release
 $null
 .megon
 docs
+.artifacts
+
+# Dev-only audit and log files
+LOGS.md
+PACKAGE_AUDIT.md
+RELEASE_AUDIT*.md
+RELEASE_READY.md
+SECURITY_AUDIT.md
+
+# Dev icons
+*-dev.png
 
 # Environment and secrets
 .env

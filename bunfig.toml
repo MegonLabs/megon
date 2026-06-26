@@ -1,0 +1,2 @@
+[test]
+preload = ["./apps/desktop/test/session-db-test-wrapper.ts"]

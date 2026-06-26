@@ -3,7 +3,7 @@ import { detectShellsInternal, type ShellDetectionDeps } from "../electron/shell
 
 describe("shell detector", () => {
   test("resolves Windows shells in correct priority order", () => {
-    // Normalize paths for cross-platform: on Linux, path.join uses / but mock uses \
+    // Normalize mockExists keys for cross-platform matching
     const normalize = (p: string) => p.replace(/\\/g, "/");
     const mockExists = new Set<string>([
       normalize("C:\\Program Files\\Git\\bin\\bash.exe"),
@@ -34,10 +34,10 @@ describe("shell detector", () => {
     const detected = detectShellsInternal(deps);
 
     expect(detected).toEqual([
-      normalize("C:\\Program Files\\Git\\bin\\bash.exe"),
-      normalize("C:\\Program Files\\PowerShell\\7\\pwsh.exe"),
-      normalize("C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"),
-      normalize("C:\\Windows\\System32\\cmd.exe"),
+      "C:\\Program Files\\Git\\bin\\bash.exe",
+      "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+      "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+      "C:\\Windows\\System32\\cmd.exe",
     ]);
   });
 
@@ -66,8 +66,8 @@ describe("shell detector", () => {
     const detected = detectShellsInternal(deps);
 
     expect(detected).toEqual([
-      normalize("C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"),
-      normalize("C:\\Windows\\System32\\cmd.exe"),
+      "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+      "C:\\Windows\\System32\\cmd.exe",
     ]);
   });
 

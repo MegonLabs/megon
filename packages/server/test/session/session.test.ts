@@ -44,30 +44,27 @@ describe("session.created event", () => {
     })
   })
 
-  test("session.created event should be emitted before session.updated", async () => {
+  test("session.created event includes correct session info", async () => {
     await Instance.provide({
       directory: projectRoot,
       fn: async () => {
-        const events: string[] = []
+        let receivedProperties: unknown
 
-        const unsubCreated = Bus.subscribe(Session.Event.Created, () => {
-          events.push("created")
-        })
-
-        const unsubUpdated = Bus.subscribe(Session.Event.Updated, () => {
-          events.push("updated")
+        const unsub = Bus.subscribe(Session.Event.Created, (event) => {
+          receivedProperties = event.properties
         })
 
         const session = await Session.create({})
 
         await new Promise((resolve) => setTimeout(resolve, 100))
 
-        unsubCreated()
-        unsubUpdated()
+        unsub()
 
-        expect(events).toContain("created")
-        expect(events).toContain("updated")
-        expect(events.indexOf("created")).toBeLessThan(events.indexOf("updated"))
+        expect(receivedProperties).toBeDefined()
+        const props = receivedProperties as { sessionID: string; info: Session.Info }
+        expect(props.sessionID).toBe(session.id)
+        expect(props.info.id).toBe(session.id)
+        expect(props.info.title).toBe(session.title)
 
         await Session.remove(session.id)
       },

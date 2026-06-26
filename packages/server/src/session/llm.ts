@@ -111,9 +111,6 @@ export namespace LLM {
       Provider.getProvider(input.model.providerID),
       Auth.get(input.model.providerID),
     ])
-    // TODO: move this to a proper hook
-    const isOpenaiOauth = provider.id === "openai" && auth?.type === "oauth"
-
     const system: string[] = []
     system.push(
       [
@@ -158,24 +155,18 @@ export namespace LLM {
       mergeDeep(input.agent.options),
       mergeDeep(variant),
     )
-    if (isOpenaiOauth) {
-      options.instructions = system.join("\n")
-    }
-
     const isWorkflow = language instanceof GitLabWorkflowLanguageModel
-    const messages = isOpenaiOauth
+    const messages = isWorkflow
       ? input.messages
-      : isWorkflow
-        ? input.messages
-        : [
-            ...system.map(
-              (x): ModelMessage => ({
-                role: "system",
-                content: x,
-              }),
-            ),
-            ...input.messages,
-          ]
+      : [
+          ...system.map(
+            (x): ModelMessage => ({
+              role: "system",
+              content: x,
+            }),
+          ),
+          ...input.messages,
+        ]
 
     const params = await Plugin.trigger(
       "chat.params",
@@ -185,6 +176,8 @@ export namespace LLM {
         model: input.model,
         provider,
         message: input.user,
+        auth,
+        system,
       },
       {
         temperature: input.model.capabilities.temperature
@@ -194,6 +187,7 @@ export namespace LLM {
         topK: ProviderTransform.topK(input.model),
         maxOutputTokens: ProviderTransform.maxOutputTokens(input.model),
         options,
+        messages,
       },
     )
 
@@ -359,7 +353,7 @@ export namespace LLM {
         ...headers,
       },
       maxRetries: input.retries ?? 0,
-      messages,
+      messages: params.messages as ModelMessage[],
       model: wrapLanguageModel({
         model: language,
         middleware: [

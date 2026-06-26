@@ -1,6 +1,5 @@
 {
   "lockfileVersion": 1,
-  "configVersion": 1,
   "workspaces": {
     "": {
       "name": "megon-monorepo",
@@ -3824,7 +3823,7 @@
 
     "@hey-api/json-schema-ref-parser/js-yaml/argparse": ["argparse@2.0.1", "", {}, "sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q=="],
 
-    "@megon/server/@megon/plugin/@megon/sdk": ["@megon/sdk@file:packages\\sdk\\js", {}],
+    "@megon/server/@megon/plugin/@megon/sdk": ["@megon/sdk@file:packages/sdk/js", {}],
 
     "@modelcontextprotocol/sdk/ajv/json-schema-traverse": ["json-schema-traverse@1.0.0", "", {}, "sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug=="],
 
@@ -3972,9 +3971,9 @@
 
     "inquirer/strip-ansi/ansi-regex": ["ansi-regex@5.0.1", "", {}, "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ=="],
 
-    "megon-desktop/@megon/ui/@megon/sdk": ["@megon/sdk@file:packages\\sdk\\js", {}],
+    "megon-desktop/@megon/ui/@megon/sdk": ["@megon/sdk@file:packages/sdk/js", {}],
 
-    "megon-desktop/@megon/ui/@megon/util": ["@megon/util@file:packages\\util", {}],
+    "megon-desktop/@megon/ui/@megon/util": ["@megon/util@file:packages/util", {}],
 
     "megon-desktop/@megon/ui/@tailwindcss/vite": ["@tailwindcss/vite@4.2.2", "", { "dependencies": { "@tailwindcss/node": "4.2.2", "@tailwindcss/oxide": "4.2.2", "tailwindcss": "4.2.2" }, "peerDependencies": { "vite": "^5.2.0 || ^6 || ^7 || ^8" } }, "sha512-mEiF5HO1QqCLXoNEfXVA1Tzo+cYsrqV7w9Juj2wdUFyW07JRenqMG225MvPwr3ZD9N1bFQj46X7r33iHxLUW0w=="],
 

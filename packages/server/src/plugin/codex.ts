@@ -601,6 +601,19 @@ export async function CodexAuthPlugin(input: PluginInput): Promise<Hooks> {
       if (input.model.providerID !== "openai") return
       // Match codex cli
       output.maxOutputTokens = undefined
+
+      if (input.auth?.type === "oauth") {
+        if (input.system) {
+          output.options.instructions = input.system.join("\n")
+        }
+        // Only remove prepended system messages that were injected by streamText
+        // by counting how many strings were in `input.system` and removing that many
+        // system messages from the start of the array.
+        if (input.system) {
+          const sysCount = input.system.length
+          output.messages = output.messages.slice(sysCount)
+        }
+      }
     },
   }
 }

@@ -244,13 +244,14 @@ export interface Hooks {
    * Modify parameters sent to LLM
    */
   "chat.params"?: (
-    input: { sessionID: string; agent: string; model: Model; provider: ProviderContext; message: UserMessage },
+    input: { sessionID: string; agent: string; model: Model; provider: ProviderContext; message: UserMessage; auth?: Auth; system?: string[] },
     output: {
       temperature: number
       topP: number
       topK: number
       maxOutputTokens: number | undefined
       options: Record<string, any>
+      messages: { role: string; content: any }[]
     },
   ) => Promise<void>
   "chat.headers"?: (

@@ -1,0 +1,271 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-${{ github.event.release.tag_name || github.ref_name }}
+  # Never cancel an in-progress release build. Cancelling mid-build (e.g. a
+  # newer push to main) surfaces as "The operation was canceled" on whatever
+  # step is active (often the cache restore). Let started builds finish.
+  cancel-in-progress: false
+
+jobs:
+  prepare-release:
+    runs-on: ubuntu-latest
+    outputs:
+      release_tag: ${{ steps.compute.outputs.release_tag }}
+      should_release: ${{ steps.compute.outputs.should_release }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compute release tag
+        id: compute
+        shell: bash
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          tag="v${version}"
+          should_release="false"
+
+          if [[ "${GITHUB_EVENT_NAME}" == "push" && "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            if git rev-parse -q --verify "refs/tags/${tag}" >/dev/null; then
+              echo "Tag ${tag} already exists. Skipping auto-release."
+              should_release="false"
+            else
+              should_release="true"
+            fi
+          elif [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            if [[ "${GITHUB_ACTOR}" == "github-actions[bot]" ]]; then
+              echo "Tag push from workflow bot detected. Skipping duplicate run."
+              should_release="false"
+            else
+              should_release="true"
+            fi
+          elif [[ "${GITHUB_EVENT_NAME}" == "release" ]]; then
+            tag="${{ github.event.release.tag_name }}"
+            should_release="true"
+          fi
+
+          echo "release_tag=${tag}" >> "$GITHUB_OUTPUT"
+          echo "should_release=${should_release}" >> "$GITHUB_OUTPUT"
+
+      - name: Create and push tag for main bump
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.compute.outputs.should_release == 'true'
+        shell: bash
+        run: |
+          tag="${{ steps.compute.outputs.release_tag }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag "${tag}"
+          git push origin "${tag}"
+
+  build:
+    needs: prepare-release
+    if: needs.prepare-release.outputs.should_release == 'true'
+    env:
+      BUN_VERSION: 1.3.14
+      ELECTRON_CACHE: ${{ github.workspace }}/.cache/electron
+      ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.prepare-release.outputs.release_tag }}
+
+      - name: Cache Bun runtime
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/bin
+          key: ${{ runner.os }}-bun-runtime-${{ env.BUN_VERSION }}
+
+      - name: Cache Bun package downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-packages-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-packages-
+
+      - name: Cache Electron downloads
+        uses: actions/cache@v4
+        with:
+          path: |
+            .cache/electron
+            .cache/electron-builder
+          key: ${{ runner.os }}-electron-${{ hashFiles('package.json', 'bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-electron-
+      
+      - name: Setup Bun (macOS/Linux)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -o pipefail
+          if [ -x "$HOME/.bun/bin/bun" ]; then
+            echo "$HOME/.bun/bin" >> "$GITHUB_PATH"
+            exit 0
+          fi
+          max_attempts=10
+          for attempt in $(seq 1 "$max_attempts"); do
+            if curl -fsSL https://bun.sh/install | bash -s "bun-v${BUN_VERSION}"; then
+              echo "$HOME/.bun/bin" >> "$GITHUB_PATH"
+              exit 0
+            fi
+            if [ "$attempt" -eq "$max_attempts" ]; then
+              break
+            fi
+            sleep_seconds=$((attempt * 30))
+            echo "Bun install failed on attempt ${attempt}; retrying in ${sleep_seconds}s..."
+            sleep "$sleep_seconds"
+          done
+          echo "Bun install failed after ${max_attempts} attempts." >&2
+          exit 1
+
+      - name: Setup Bun (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $bunExe = Join-Path $env:USERPROFILE ".bun\bin\bun.exe"
+          if (Test-Path $bunExe) {
+            "$env:USERPROFILE\.bun\bin" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+            exit 0
+          }
+          $installer = Join-Path $env:RUNNER_TEMP "bun-install.ps1"
+          $maxAttempts = 10
+          for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+            try {
+              Invoke-RestMethod "https://bun.sh/install.ps1" -OutFile $installer
+              & pwsh -NoProfile -ExecutionPolicy Bypass -File $installer -Version $env:BUN_VERSION
+              if ($LASTEXITCODE -eq 0 -and (Test-Path $bunExe)) {
+                "$env:USERPROFILE\.bun\bin" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+                exit 0
+              }
+            } catch {
+              Write-Warning $_
+            }
+            if ($attempt -eq $maxAttempts) {
+              break
+            }
+            $sleepSeconds = $attempt * 30
+            Write-Warning "Bun install failed on attempt $attempt; retrying in ${sleepSeconds}s..."
+            Start-Sleep -Seconds $sleepSeconds
+          }
+          throw "Bun install failed after $maxAttempts attempts."
+
+      - name: Verify Bun
+        run: bun --version
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libfuse2
+          
+      - name: Install dependencies
+        shell: bash
+        run: |
+          node scripts/ci-run-with-retry.mjs --attempts 6 --timeout 360 --delay-step 30 -- bun install
+
+      - name: Validate release version
+        shell: bash
+        run: |
+          package_version="$(node -p "require('./package.json').version")"
+          release_tag="${{ needs.prepare-release.outputs.release_tag }}"
+          if [ "${release_tag}" != "v${package_version}" ]; then
+            echo "::error::Release tag ${release_tag} does not match package.json version v${package_version}"
+            exit 1
+          fi
+        
+      - name: Build Electron app
+        shell: bash
+        run: |
+          node scripts/ci-run-with-retry.mjs --attempts 6 --timeout 1800 --delay-step 45 -- bun run build:electron
+          
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-${{ matrix.os }}
+          path: |
+            release/*.exe
+            release/*.exe.blockmap
+            release/*.dmg
+            release/*.dmg.blockmap
+            release/*.AppImage
+            release/*.AppImage.blockmap
+            release/*.deb
+            release/*.zip
+            release/*.zip.blockmap
+            release/*.tar.gz
+            release/*.tar.gz.blockmap
+            release/latest*.yml
+          if-no-files-found: warn
+          
+      - name: Publish release assets
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ needs.prepare-release.outputs.release_tag }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          $tag = $env:TAG_NAME
+          if ([string]::IsNullOrWhiteSpace($tag)) {
+            throw "Missing TAG_NAME"
+          }
+
+          $files = Get-ChildItem -Path release -File -ErrorAction SilentlyContinue | Where-Object {
+            $_.Name -like "latest*.yml" -or
+            $_.Name -like "*.exe" -or
+            $_.Name -like "*.exe.blockmap" -or
+            $_.Name -like "*.dmg" -or
+            $_.Name -like "*.dmg.blockmap" -or
+            $_.Name -like "*.AppImage" -or
+            $_.Name -like "*.AppImage.blockmap" -or
+            $_.Name -like "*.deb" -or
+            $_.Name -like "*.zip" -or
+            $_.Name -like "*.zip.blockmap" -or
+            $_.Name -like "*.tar.gz" -or
+            $_.Name -like "*.tar.gz.blockmap"
+          }
+
+          if (-not $files -or $files.Count -eq 0) {
+            Write-Host "No release artifacts found for $tag on $env:RUNNER_OS. Skipping upload."
+            exit 0
+          }
+
+          gh release view $tag --repo "$env:GITHUB_REPOSITORY" *> $null
+          if ($LASTEXITCODE -ne 0) {
+            # --generate-notes builds the changelog from every commit/PR title
+            # since the previous tag, so the release lists all the commit titles.
+            gh release create $tag --repo "$env:GITHUB_REPOSITORY" --title $tag --generate-notes
+          }
+
+          foreach ($file in $files) {
+            gh release upload $tag $file.FullName --repo "$env:GITHUB_REPOSITORY" --clobber
+          }

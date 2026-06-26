@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@tsconfig/bun/tsconfig.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "jsxImportSource": "@opentui/solid",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "types": [],
+    "noUncheckedIndexedAccess": false,
+    "customConditions": ["browser"],
+    "paths": {
+      "@/*": ["./src/*"],
+      "@tui/*": ["./src/cli/cmd/tui/*"],
+      "@shob-ai/plugin": ["../plugin/src/index.ts"],
+      "@shob-ai/plugin/*": ["../plugin/src/*"],
+      "@shob-ai/sdk": ["../sdk/js/src/index.ts"],
+      "@shob-ai/sdk/*": ["../sdk/js/src/*"],
+      "@shob-ai/util": ["../util/src/index.ts"],
+      "@shob-ai/util/*": ["../util/src/*"]
+    },
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "transform": "@effect/language-service/transform",
+        "namespaceImportPackages": ["effect", "@effect/*"]
+      }
+    ]
+  }
+}

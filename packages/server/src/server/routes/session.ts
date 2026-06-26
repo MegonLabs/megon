@@ -111,8 +111,6 @@ async function streamTokensIncremental(
     Auth.get(input.model.providerID),
   ])
 
-  const isOpenaiOauth = provider.id === "openai" && auth?.type === "oauth"
-
   // Build system prompt
   const system: string[] = []
   system.push(
@@ -125,17 +123,15 @@ async function streamTokensIncremental(
   )
 
   // Build messages
-  const messages = isOpenaiOauth
-    ? input.messages
-    : [
-        ...system.map(
-          (x): ModelMessage => ({
-            role: "system",
-            content: x,
-          }),
-        ),
-        ...input.messages,
-      ]
+  const rawMessages: ModelMessage[] = [
+    ...system.map(
+      (x): ModelMessage => ({
+        role: "system",
+        content: x,
+      }),
+    ),
+    ...input.messages,
+  ]
 
   // Build options
   const base = ProviderTransform.options({
@@ -143,11 +139,18 @@ async function streamTokensIncremental(
     sessionID,
     providerOptions: provider.options,
   })
-  const options: Record<string, any> = pipe(
+  const baseOptions: Record<string, any> = pipe(
     base,
     mergeDeep(input.model.options),
     mergeDeep(input.agent.options),
   )
+
+  const { messages, providerOptions } = ProviderTransform.transformRequest({
+    model: input.model,
+    auth,
+    messages: rawMessages,
+    options: baseOptions,
+  })
 
   // Stream tokens as they arrive - this is the key optimization
   const result = streamText({
@@ -159,7 +162,7 @@ async function streamTokensIncremental(
           async transformParams(args) {
             if (args.type === "stream") {
               // @ts-expect-error
-              args.params.prompt = ProviderTransform.message(args.params.prompt, input.model, options)
+              args.params.prompt = ProviderTransform.message(args.params.prompt, input.model, baseOptions)
             }
             return args.params
           },
@@ -174,7 +177,7 @@ async function streamTokensIncremental(
     topP: input.agent.topP ?? ProviderTransform.topP(input.model),
     topK: ProviderTransform.topK(input.model),
     maxOutputTokens: ProviderTransform.maxOutputTokens(input.model),
-    providerOptions: ProviderTransform.providerOptions(input.model, options),
+    providerOptions,
     abortSignal: new AbortController().signal,
     headers: {
       "x-session-affinity": sessionID,

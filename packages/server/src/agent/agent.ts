@@ -341,9 +341,22 @@ export namespace Agent {
           )
           const existing = yield* InstanceState.useEffect(state, (s) => s.list())
 
-          // TODO: clean this up so provider specific logic doesnt bleed over
           const authInfo = yield* auth.get(model.providerID).pipe(Effect.orDie)
-          const isOpenaiOauth = model.providerID === "openai" && authInfo?.type === "oauth"
+
+          const rawMessages: ModelMessage[] = [
+            ...system.map((item): ModelMessage => ({ role: "system", content: item })),
+            {
+              role: "user",
+              content: `Create an agent configuration based on this request: \"${input.description}\".\n\nIMPORTANT: The following identifiers already exist and must NOT be used: ${existing.map((i) => i.name).join(", ")}\n  Return ONLY the JSON object, no other text, do not wrap in backticks`,
+            },
+          ]
+
+          const { messages, providerOptions } = ProviderTransform.transformRequest({
+            model: resolved,
+            auth: authInfo,
+            messages: rawMessages,
+            options: {},
+          })
 
           const params = {
             experimental_telemetry: {
@@ -353,20 +366,8 @@ export namespace Agent {
               },
             },
             temperature: 0.3,
-            messages: [
-              ...(isOpenaiOauth
-                ? []
-                : system.map(
-                    (item): ModelMessage => ({
-                      role: "system",
-                      content: item,
-                    }),
-                  )),
-              {
-                role: "user",
-                content: `Create an agent configuration based on this request: \"${input.description}\".\n\nIMPORTANT: The following identifiers already exist and must NOT be used: ${existing.map((i) => i.name).join(", ")}\n  Return ONLY the JSON object, no other text, do not wrap in backticks`,
-              },
-            ],
+            messages,
+            providerOptions,
             model: language,
             schema: z.object({
               identifier: z.string(),
@@ -375,24 +376,16 @@ export namespace Agent {
             }),
           } satisfies Parameters<typeof generateObject>[0]
 
-          if (isOpenaiOauth) {
-            return yield* Effect.promise(async () => {
-              const result = streamObject({
-                ...params,
-                providerOptions: ProviderTransform.providerOptions(resolved, {
-                  instructions: system.join("\n"),
-                  store: false,
-                }),
-                onError: () => {},
-              })
-              for await (const part of result.fullStream) {
-                if (part.type === "error") throw part.error
-              }
-              return result.object
+          return yield* Effect.promise(async () => {
+            const result = streamObject({
+              ...params,
+              onError: () => {},
             })
-          }
-
-          return yield* Effect.promise(() => generateObject(params).then((r) => r.object))
+            for await (const part of result.fullStream) {
+              if (part.type === "error") throw part.error
+            }
+            return result.object
+          })
         }),
       })
     }),

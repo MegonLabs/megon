@@ -57,19 +57,11 @@ async function improvePrompt(input: z.infer<typeof PromptImproveBody>) {
       "5. Return ONLY the improved prompt text, nothing else.",
     ].join(" "),
   ]
-  const isOpenaiOauth = provider.id === "openai" && auth?.type === "oauth"
   const variant = input.variant && model.variants?.[input.variant] ? model.variants[input.variant] : {}
   const options = pipe(ProviderTransform.options({ model, sessionID }), mergeDeep(model.options), mergeDeep(variant))
-  const providerOptions = isOpenaiOauth
-    ? ProviderTransform.providerOptions(model, mergeDeep(options, { instructions: system.join("\n"), store: false }))
-    : ProviderTransform.providerOptions(model, options)
-  const messages: ModelMessage[] = [
-    ...(isOpenaiOauth
-      ? []
-      : system.map((content): ModelMessage => ({
-          role: "system",
-          content,
-        }))),
+
+  const rawMessages: ModelMessage[] = [
+    ...system.map((content): ModelMessage => ({ role: "system", content })),
     {
       role: "user",
       content: [
@@ -84,6 +76,15 @@ async function improvePrompt(input: z.infer<typeof PromptImproveBody>) {
       ].join("\n"),
     },
   ]
+
+  const { messages: transformedMessages, providerOptions } = ProviderTransform.transformRequest({
+    model,
+    auth,
+    messages: rawMessages,
+    options,
+  })
+
+  const messages = ProviderTransform.message(transformedMessages, model, options)
   const maxOutputTokens = Math.min(
     ProviderTransform.maxOutputTokens(model),
     Math.max(2048, Math.ceil(input.prompt.length / 2) + 1024),
@@ -108,7 +109,7 @@ async function improvePrompt(input: z.infer<typeof PromptImproveBody>) {
           }),
       ...model.headers,
     },
-    messages: ProviderTransform.message(messages, model, options),
+    messages,
     model: language,
   })
   const improved = result.text.trim()

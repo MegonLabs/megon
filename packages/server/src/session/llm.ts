@@ -111,8 +111,7 @@ export namespace LLM {
       Provider.getProvider(input.model.providerID),
       Auth.get(input.model.providerID),
     ])
-    // TODO: move this to a proper hook
-    const isOpenaiOauth = provider.id === "openai" && auth?.type === "oauth"
+
 
     const system: string[] = []
     system.push(
@@ -152,30 +151,36 @@ export namespace LLM {
           sessionID: input.sessionID,
           providerOptions: provider.options,
         })
-    const options: Record<string, any> = pipe(
+    const baseOptions: Record<string, any> = pipe(
       base,
       mergeDeep(input.model.options),
       mergeDeep(input.agent.options),
       mergeDeep(variant),
     )
-    if (isOpenaiOauth) {
-      options.instructions = system.join("\n")
-    }
 
     const isWorkflow = language instanceof GitLabWorkflowLanguageModel
-    const messages = isOpenaiOauth
+    const rawMessages: ModelMessage[] = isWorkflow
       ? input.messages
-      : isWorkflow
-        ? input.messages
-        : [
-            ...system.map(
-              (x): ModelMessage => ({
-                role: "system",
-                content: x,
-              }),
-            ),
-            ...input.messages,
-          ]
+      : [
+          ...system.map(
+            (x): ModelMessage => ({
+              role: "system",
+              content: x,
+            }),
+          ),
+          ...input.messages,
+        ]
+
+    const { messages, providerOptions } = ProviderTransform.transformRequest({
+      model: input.model,
+      auth,
+      messages: rawMessages,
+      options: baseOptions,
+    })
+
+    // update options reference since it is passed into streamText below
+    const options = baseOptions
+
 
     const params = await Plugin.trigger(
       "chat.params",
@@ -368,7 +373,7 @@ export namespace LLM {
             async transformParams(args) {
               if (args.type === "stream") {
                 // @ts-expect-error
-                args.params.prompt = ProviderTransform.message(args.params.prompt, input.model, options)
+                args.params.prompt = ProviderTransform.message(args.params.prompt, input.model, baseOptions)
               }
               return args.params
             },

@@ -51,13 +51,15 @@ export interface ShellDetectionDeps {
 }
 
 export function findGitBash(deps: ShellDetectionDeps): string | null {
+  const p = deps.platform === "win32" ? path.win32 : path.posix;
+
   // 1. Try finding via resolveCommand of git.exe
   const gitPath = deps.resolveCommand("git.exe");
   if (gitPath) {
-    const gitDir = path.dirname(gitPath); // usually C:\Program Files\Git\cmd
-    const possibleBash1 = path.join(gitDir, "..", "bin", "bash.exe");
-    const possibleBash2 = path.join(gitDir, "bin", "bash.exe");
-    const possibleBash3 = path.join(gitDir, "..", "usr", "bin", "bash.exe");
+    const gitDir = p.dirname(gitPath); // usually C:\Program Files\Git\cmd
+    const possibleBash1 = p.join(gitDir, "..", "bin", "bash.exe");
+    const possibleBash2 = p.join(gitDir, "bin", "bash.exe");
+    const possibleBash3 = p.join(gitDir, "..", "usr", "bin", "bash.exe");
     if (deps.existsSync(possibleBash1)) return possibleBash1;
     if (deps.existsSync(possibleBash2)) return possibleBash2;
     if (deps.existsSync(possibleBash3)) return possibleBash3;
@@ -70,19 +72,19 @@ export function findGitBash(deps: ShellDetectionDeps): string | null {
   }
 
   // 3. System and per-user paths
-  const appDataLocal = deps.env.LOCALAPPDATA || path.join(deps.homedir, "AppData", "Local");
+  const appDataLocal = deps.env.LOCALAPPDATA || p.join(deps.homedir, "AppData", "Local");
   const programFiles = deps.env.ProgramFiles || "C:\\Program Files";
   const programFilesX86 = deps.env["ProgramFiles(x86)"] || "C:\\Program Files (x86)";
 
   const candidates = [
-    path.join(programFiles, "Git", "bin", "bash.exe"),
-    path.join(programFilesX86, "Git", "bin", "bash.exe"),
-    path.join(appDataLocal, "Programs", "Git", "bin", "bash.exe"),
-    path.join(appDataLocal, "Programs", "Git", "usr", "bin", "bash.exe"),
+    p.join(programFiles, "Git", "bin", "bash.exe"),
+    p.join(programFilesX86, "Git", "bin", "bash.exe"),
+    p.join(appDataLocal, "Programs", "Git", "bin", "bash.exe"),
+    p.join(appDataLocal, "Programs", "Git", "usr", "bin", "bash.exe"),
     "C:\\Git\\bin\\bash.exe",
     // Fallbacks to sh just in case
-    path.join(programFiles, "Git", "bin", "sh.exe"),
-    path.join(programFilesX86, "Git", "bin", "sh.exe"),
+    p.join(programFiles, "Git", "bin", "sh.exe"),
+    p.join(programFilesX86, "Git", "bin", "sh.exe"),
   ];
 
   for (const c of candidates) {
@@ -92,6 +94,8 @@ export function findGitBash(deps: ShellDetectionDeps): string | null {
 }
 
 export function findPowerShell7(deps: ShellDetectionDeps): string | null {
+  const p = deps.platform === "win32" ? path.win32 : path.posix;
+
   const pwshPath = deps.resolveCommand("pwsh.exe");
   if (pwshPath) return pwshPath;
 
@@ -99,8 +103,8 @@ export function findPowerShell7(deps: ShellDetectionDeps): string | null {
   const programFilesX86 = deps.env["ProgramFiles(x86)"] || "C:\\Program Files (x86)";
 
   const candidates = [
-    path.join(programFiles, "PowerShell", "7", "pwsh.exe"),
-    path.join(programFilesX86, "PowerShell", "7", "pwsh.exe"),
+    p.join(programFiles, "PowerShell", "7", "pwsh.exe"),
+    p.join(programFilesX86, "PowerShell", "7", "pwsh.exe"),
   ];
 
   for (const c of candidates) {
@@ -110,11 +114,13 @@ export function findPowerShell7(deps: ShellDetectionDeps): string | null {
 }
 
 export function findWindowsPowerShell(deps: ShellDetectionDeps): string | null {
+  const p = deps.platform === "win32" ? path.win32 : path.posix;
+
   const powershellPath = deps.resolveCommand("powershell.exe");
   if (powershellPath) return powershellPath;
 
   const systemRoot = deps.env.SystemRoot || "C:\\Windows";
-  const candidate = path.join(systemRoot, "System32", "WindowsPowerShell", "v1.0", "powershell.exe");
+  const candidate = p.join(systemRoot, "System32", "WindowsPowerShell", "v1.0", "powershell.exe");
   if (deps.existsSync(candidate)) return candidate;
   return null;
 }

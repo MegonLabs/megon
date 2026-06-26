@@ -140,12 +140,10 @@ export const biome: Info = {
   ],
   async enabled() {
     const configs = ["biome.json", "biome.jsonc"]
-    for (const config of configs) {
-      const found = await Filesystem.findUp(config, Instance.directory, Instance.worktree)
-      if (found.length > 0) {
-        const bin = await Npm.which("@biomejs/biome")
-        if (bin) return [bin, "format", "--write", "$FILE"]
-      }
+    const foundConfigs = await Filesystem.findUp(configs, Instance.directory, Instance.worktree)
+    if (foundConfigs.length > 0) {
+      const bin = await Npm.which("@biomejs/biome")
+      if (bin) return [bin, "format", "--write", "$FILE"]
     }
     return false
   },
@@ -190,24 +188,21 @@ export const ruff: Info = {
   async enabled() {
     if (!which("ruff")) return false
     const configs = ["pyproject.toml", "ruff.toml", ".ruff.toml"]
-    for (const config of configs) {
-      const found = await Filesystem.findUp(config, Instance.directory, Instance.worktree)
-      if (found.length > 0) {
-        if (config === "pyproject.toml") {
-          const content = await Filesystem.readText(found[0])
-          if (content.includes("[tool.ruff]")) return ["ruff", "format", "$FILE"]
-        } else {
-          return ["ruff", "format", "$FILE"]
-        }
+    const foundConfigs = await Filesystem.findUp(configs, Instance.directory, Instance.worktree)
+    for (const match of foundConfigs) {
+      if (match.endsWith("pyproject.toml")) {
+        const content = await Filesystem.readText(match)
+        if (content.includes("[tool.ruff]")) return ["ruff", "format", "$FILE"]
+      } else {
+        return ["ruff", "format", "$FILE"]
       }
     }
+
     const deps = ["requirements.txt", "pyproject.toml", "Pipfile"]
-    for (const dep of deps) {
-      const found = await Filesystem.findUp(dep, Instance.directory, Instance.worktree)
-      if (found.length > 0) {
-        const content = await Filesystem.readText(found[0])
-        if (content.includes("ruff")) return ["ruff", "format", "$FILE"]
-      }
+    const foundDeps = await Filesystem.findUp(deps, Instance.directory, Instance.worktree)
+    for (const match of foundDeps) {
+      const content = await Filesystem.readText(match)
+      if (content.includes("ruff")) return ["ruff", "format", "$FILE"]
     }
     return false
   },

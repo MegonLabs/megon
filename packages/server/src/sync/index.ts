@@ -37,7 +37,7 @@ export namespace SyncEvent {
   let frozen = false
   let convertEvent: (type: string, event: Event["data"]) => Promise<Record<string, unknown>> | Record<string, unknown>
 
-  const Bus = new EventEmitter<{ event: [{ def: Definition; event: Event }] }>()
+  const Bus = new EventEmitter<{ event: [{ type: string; event: Event }] }>()
 
   export function reset() {
     frozen = false
@@ -141,7 +141,7 @@ export namespace SyncEvent {
 
       Database.effect(() => {
         Bus.emit("event", {
-          def,
+          type: versionedType(def.type, def.version),
           event,
         })
 
@@ -235,7 +235,7 @@ export namespace SyncEvent {
     })
   }
 
-  export function subscribeAll(handler: (event: { def: Definition; event: Event }) => void) {
+  export function subscribeAll(handler: (event: { type: string; event: Event }) => void) {
     Bus.on("event", handler)
     return () => Bus.off("event", handler)
   }

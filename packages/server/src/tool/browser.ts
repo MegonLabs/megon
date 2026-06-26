@@ -147,7 +147,7 @@ export const BrowserTool = Tool.define(
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "x-megon-Browser-Token": token,
+              "X-Megon-Browser-Token": token,
             },
             body: JSON.stringify(params),
             signal: ctx.abort,

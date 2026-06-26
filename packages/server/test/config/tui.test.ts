@@ -8,10 +8,15 @@ import { TuiConfig } from "../../src/config/tui"
 import { Global } from "../../src/global"
 import { Filesystem } from "../../src/util/filesystem"
 import { initProjectors } from "../../src/server/projectors"
+import os from "os"
 
 initProjectors()
 
-const managedConfigDir = process.env.MEGON_TEST_MANAGED_CONFIG_DIR!
+const managedConfigDir =
+  process.env.MEGON_TEST_MANAGED_CONFIG_DIR || path.join(os.tmpdir(), "megon-test-managed-" + process.pid)
+if (!process.env.MEGON_TEST_MANAGED_CONFIG_DIR) {
+  process.env.MEGON_TEST_MANAGED_CONFIG_DIR = managedConfigDir
+}
 const wintest = process.platform === "win32" ? test : test.skip
 
 beforeEach(async () => {

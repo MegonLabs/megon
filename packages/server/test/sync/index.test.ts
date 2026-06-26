@@ -13,6 +13,10 @@ import { initProjectors } from "../../src/server/projectors"
 const original = Flag.MEGON_EXPERIMENTAL_WORKSPACES
 
 beforeEach(() => {
+  // Clear event table to prevent UNIQUE constraint violations between tests
+  try {
+    Database.use((db) => db.delete(EventTable).all())
+  } catch {}
   Database.close()
 
   // @ts-expect-error don't do this normally, but it works

@@ -6,8 +6,6 @@ import { InstanceRef, WorkspaceRef } from "./instance-ref"
 import { Observability } from "./oltp"
 import { WorkspaceContext } from "@/control-plane/workspace-context"
 
-export const memoMap = Layer.makeMemoMapUnsafe()
-
 export function attach<A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> {
   try {
     const ctx = Instance.current
@@ -21,6 +19,8 @@ export function attach<A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A
 
 export function makeRuntime<I, S, E>(service: Context.Service<I, S>, layer: Layer.Layer<I, E>) {
   let rt: ManagedRuntime.ManagedRuntime<I, E> | undefined
+  // Each runtime gets its own MemoMap to prevent cross-module state leakage
+  const memoMap = Layer.makeMemoMapUnsafe()
   const getRuntime = () => (rt ??= ManagedRuntime.make(Layer.merge(layer, Observability.layer), { memoMap }))
 
   return {

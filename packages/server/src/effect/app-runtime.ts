@@ -1,5 +1,4 @@
 import { Layer, ManagedRuntime } from "effect"
-import { memoMap } from "./run-service"
 import { Observability } from "./oltp"
 
 import { AppFileSystem } from "@/filesystem"
@@ -107,4 +106,4 @@ const ToolingLayer = Layer.mergeAll(
 
 export const AppLayer = Layer.mergeAll(FoundationLayer, SessionLayer, ToolingLayer)
 
-export const AppRuntime = ManagedRuntime.make(AppLayer, { memoMap })
+export const AppRuntime = ManagedRuntime.make(AppLayer)

@@ -4,7 +4,7 @@ import { makeRuntime } from "../../src/effect/run-service"
 
 class Shared extends Context.Service<Shared, { readonly id: number }>()("@test/Shared") {}
 
-test("makeRuntime shares dependent layers through the shared memo map", async () => {
+test("makeRuntime creates independent runtimes with isolated memo maps", async () => {
   let n = 0
 
   const shared = Layer.effect(
@@ -40,7 +40,8 @@ test("makeRuntime shares dependent layers through the shared memo map", async ()
   const { runPromise: runOne } = makeRuntime(One, one)
   const { runPromise: runTwo } = makeRuntime(Two, two)
 
+  // Each runtime gets its own MemoMap, so Shared is created independently
   expect(await runOne((svc) => svc.get())).toBe(1)
-  expect(await runTwo((svc) => svc.get())).toBe(1)
-  expect(n).toBe(1)
+  expect(await runTwo((svc) => svc.get())).toBe(2)
+  expect(n).toBe(2)
 })

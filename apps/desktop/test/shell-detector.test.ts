@@ -3,11 +3,13 @@ import { detectShellsInternal, type ShellDetectionDeps } from "../electron/shell
 
 describe("shell detector", () => {
   test("resolves Windows shells in correct priority order", () => {
+    // Normalize paths for cross-platform: on Linux, path.join uses / but mock uses \
+    const normalize = (p: string) => p.replace(/\\/g, "/");
     const mockExists = new Set<string>([
-      "C:\\Program Files\\Git\\bin\\bash.exe",
-      "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
-      "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
-      "C:\\Windows\\System32\\cmd.exe",
+      normalize("C:\\Program Files\\Git\\bin\\bash.exe"),
+      normalize("C:\\Program Files\\PowerShell\\7\\pwsh.exe"),
+      normalize("C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"),
+      normalize("C:\\Windows\\System32\\cmd.exe"),
     ]);
 
     const deps: ShellDetectionDeps = {
@@ -18,7 +20,7 @@ describe("shell detector", () => {
         ProgramFiles: "C:\\Program Files",
         ComSpec: "C:\\Windows\\System32\\cmd.exe",
       },
-      existsSync: (p) => mockExists.has(p),
+      existsSync: (p) => mockExists.has(normalize(p)),
       resolveCommand: (cmd) => {
         if (cmd === "git.exe") return null;
         if (cmd === "bash.exe") return null;
@@ -32,17 +34,18 @@ describe("shell detector", () => {
     const detected = detectShellsInternal(deps);
 
     expect(detected).toEqual([
-      "C:\\Program Files\\Git\\bin\\bash.exe",
-      "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
-      "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
-      "C:\\Windows\\System32\\cmd.exe",
+      normalize("C:\\Program Files\\Git\\bin\\bash.exe"),
+      normalize("C:\\Program Files\\PowerShell\\7\\pwsh.exe"),
+      normalize("C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"),
+      normalize("C:\\Windows\\System32\\cmd.exe"),
     ]);
   });
 
   test("resolves Windows shells when Git Bash is missing, fallback to others", () => {
+    const normalize = (p: string) => p.replace(/\\/g, "/");
     const mockExists = new Set<string>([
-      "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
-      "C:\\Windows\\System32\\cmd.exe",
+      normalize("C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"),
+      normalize("C:\\Windows\\System32\\cmd.exe"),
     ]);
 
     const deps: ShellDetectionDeps = {
@@ -52,7 +55,7 @@ describe("shell detector", () => {
         SystemRoot: "C:\\Windows",
         ComSpec: "C:\\Windows\\System32\\cmd.exe",
       },
-      existsSync: (p) => mockExists.has(p),
+      existsSync: (p) => mockExists.has(normalize(p)),
       resolveCommand: (cmd) => {
         if (cmd === "powershell.exe") return "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe";
         if (cmd === "cmd.exe") return "C:\\Windows\\System32\\cmd.exe";
@@ -63,8 +66,8 @@ describe("shell detector", () => {
     const detected = detectShellsInternal(deps);
 
     expect(detected).toEqual([
-      "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
-      "C:\\Windows\\System32\\cmd.exe",
+      normalize("C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"),
+      normalize("C:\\Windows\\System32\\cmd.exe"),
     ]);
   });
 

@@ -166,14 +166,12 @@ export const GlobalRoutes = lazy(() =>
         c.header("X-Accel-Buffering", "no")
         c.header("X-Content-Type-Options", "nosniff")
         return streamEvents(c, (q) => {
-          return SyncEvent.subscribeAll(({ def, event }) => {
-            // TODO: don't pass def, just pass the type (and it should
-            // be versioned)
+          return SyncEvent.subscribeAll(({ type, event }) => {
             q.push(
               JSON.stringify({
                 payload: {
                   ...event,
-                  type: SyncEvent.versionedType(def.type, def.version),
+                  type,
                 },
               }),
             )

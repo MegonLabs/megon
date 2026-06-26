@@ -1,10 +1,33 @@
 import { describe, expect, test } from "bun:test";
-import { detectShellsInternal, type ShellDetectionDeps } from "../electron/shell-detector.ts";
+import path from "node:path";
+import { detectShellsInternal, resolveCommand, type ShellDetectionDeps } from "../electron/shell-detector.ts";
+
+describe("resolveCommand", () => {
+  test("returns null when envPath is empty and command does not exist", () => {
+    // Generate a unique cache key by passing a unique command or platform
+    const result = resolveCommand("non_existent_cmd_xyz", "", "linux");
+    expect(result).toBeNull();
+  });
+
+  test("returns absolute path if command is absolute and exists", () => {
+    // We can use the current test file as an existing absolute path
+    const absolutePath = path.resolve(__filename);
+    const result = resolveCommand(absolutePath, "", "linux");
+    expect(result).toBe(absolutePath);
+  });
+
+  test("returns null if command is absolute but does not exist", () => {
+    const absolutePath = path.resolve(__dirname, "does_not_exist.txt");
+    const result = resolveCommand(absolutePath, "", "linux");
+    expect(result).toBeNull();
+  });
+});
 
 describe("shell detector", () => {
+  // Normalize mockExists keys for cross-platform matching
+  const normalize = (p: string) => p.replace(/\\/g, "/");
+
   test("resolves Windows shells in correct priority order", () => {
-    // Normalize mockExists keys for cross-platform matching
-    const normalize = (p: string) => p.replace(/\\/g, "/");
     const mockExists = new Set<string>([
       normalize("C:\\Program Files\\Git\\bin\\bash.exe"),
       normalize("C:\\Program Files\\PowerShell\\7\\pwsh.exe"),
@@ -31,18 +54,17 @@ describe("shell detector", () => {
       },
     };
 
-    const detected = detectShellsInternal(deps);
+    const detected = detectShellsInternal(deps).map(normalize);
 
     expect(detected).toEqual([
-      "C:\\Program Files\\Git\\bin\\bash.exe",
-      "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
-      "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
-      "C:\\Windows\\System32\\cmd.exe",
+      normalize("C:\\Program Files\\Git\\bin\\bash.exe"),
+      normalize("C:\\Program Files\\PowerShell\\7\\pwsh.exe"),
+      normalize("C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"),
+      normalize("C:\\Windows\\System32\\cmd.exe"),
     ]);
   });
 
   test("resolves Windows shells when Git Bash is missing, fallback to others", () => {
-    const normalize = (p: string) => p.replace(/\\/g, "/");
     const mockExists = new Set<string>([
       normalize("C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"),
       normalize("C:\\Windows\\System32\\cmd.exe"),
@@ -63,11 +85,11 @@ describe("shell detector", () => {
       },
     };
 
-    const detected = detectShellsInternal(deps);
+    const detected = detectShellsInternal(deps).map(normalize);
 
     expect(detected).toEqual([
-      "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
-      "C:\\Windows\\System32\\cmd.exe",
+      normalize("C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"),
+      normalize("C:\\Windows\\System32\\cmd.exe"),
     ]);
   });
 

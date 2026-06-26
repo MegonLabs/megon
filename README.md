@@ -1,11 +1,11 @@
 <div align="center">
 
-# Shob — The AI Agent Workspace
+# Megon — The AI Agent Workspace
 
 <table>
   <tr>
-    <td><img width="760" alt="Shob Logo" src="https://github.com/user-attachments/assets/ac64b8c9-52cb-4d80-8a69-b2a6bbcd2790" /></td>
-    <td><img width="760" alt="Shob Interface" src="https://github.com/user-attachments/assets/d4e6f8f4-fc9b-4a9b-b34c-b263693ef029" /></td>
+    <td><img width="760" alt="Megon Logo" src="https://cdn.megon.org/assets/img/logo_wide.png" /></td>
+    <td><img width="760" alt="Megon Interface" src="https://cdn.megon.org/assets/img/hero-img.png" /></td>
 
   </tr>
 </table>

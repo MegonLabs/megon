@@ -2,17 +2,17 @@ import { describe, expect, test } from "bun:test"
 import {
   resolveSessionChoiceKeyAction,
   type SessionChoiceKeyAction,
-} from "../src/megon-ported/composer/session-choice-prompt.tsx"
+} from "../src/shob-ported/composer/session-choice-prompt.tsx"
 import {
   CUSTOM_ANSWER_ID,
   buildQuestionAnswer,
   questionDefaultSelection,
   toggleQuestionSelection,
-} from "../src/megon-ported/composer/session-question-dock.tsx"
+} from "../src/shob-ported/composer/session-question-dock.tsx"
 import {
   buildPermissionChoiceOptions,
   permissionDecisionFromChoice,
-} from "../src/megon-ported/composer/session-permission-dock.tsx"
+} from "../src/shob-ported/composer/session-permission-dock.tsx"
 
 type Question = NonNullable<Parameters<typeof questionDefaultSelection>[0]>
 

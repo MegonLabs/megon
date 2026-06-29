@@ -14,7 +14,7 @@ import { nativeApi } from "../services/native"
 import { MacSidebarHeader } from "./mac-chrome"
 import { useStore } from "../store"
 import type { Project } from "../types"
-import { ResizeHandle } from "@/megon-ported/resize-handle"
+import { ResizeHandle } from "@/shob-ported/resize-handle"
 import { useGlobalSDK } from "@/context/global-sdk"
 import { useGlobalSync } from "@/context/global-sync"
 import { useLanguage } from "@/context/language"
@@ -24,8 +24,8 @@ import { showToast } from "@shob-ai/ui/toast"
 import { DotsSpinner } from "./DotsSpinner"
 import { useNotification } from "@/context/notification"
 import { usePermission } from "@/context/permission"
-import { sessionPermissionRequest } from "@/megon-ported/composer/session-request-tree"
-import { findReusableEmptyRootShobSession, sortShobSessionsById } from "@/utils/megon-session"
+import { sessionPermissionRequest } from "@/shob-ported/composer/session-request-tree"
+import { findReusableEmptyRootShobSession, sortShobSessionsById } from "@/utils/shob-session"
 import { formatServerError } from "@/utils/server-errors"
 import { removePersistedSessionState } from "@/utils/session-persisted-state"
 import {
@@ -207,7 +207,7 @@ const PinnedSessionRow = (props: {
       title={`${props.hit.session.name} · ${props.hit.project.name}`}
       onClick={() => props.onSelect(props.hit.project.id, props.hit.session.id)}
     >
-      <span class={`shob-sidebar-main-label min-w-0 truncate text-[13px] font-normal leading-4 ${isWorking() ? "megon-session-shimmer" : ""}`}>{props.hit.session.name}</span>
+      <span class={`shob-sidebar-main-label min-w-0 truncate text-[13px] font-normal leading-4 ${isWorking() ? "shob-session-shimmer" : ""}`}>{props.hit.session.name}</span>
       <span class="flex min-w-7 items-center justify-end">
         <Switch
           fallback={
@@ -600,7 +600,7 @@ function FolderSection(props: {
               <span
                 class={`shob-sidebar-main-label truncate text-[13px] leading-4 ${
                   props.activeSessionId === session.id ? "font-medium text-text-strong" : "font-normal text-text-base group-hover/session:text-text-strong transition-colors"
-                } ${isSessionWorking(session.id) ? "megon-session-shimmer" : ""}`}
+                } ${isSessionWorking(session.id) ? "shob-session-shimmer" : ""}`}
                 onDblClick={(e) => {
                   e.stopPropagation()
                   setConfirmDeleteSessionId(null)

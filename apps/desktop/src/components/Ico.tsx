@@ -1,4 +1,4 @@
-import shobLogo from "@/assets/icon/megon.png"
+import shobLogo from "@/assets/icon/shob.png"
 
 interface IcoProps {
   class?: string

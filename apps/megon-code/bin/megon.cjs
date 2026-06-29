@@ -44,7 +44,7 @@ const binary = process.platform === "win32" ? "shob.exe" : "shob"
 const bundled = path.join(scriptDir, "..", "dist", "bin", binary)
 
 if (!fs.existsSync(bundled)) {
-  console.error("Shob CLI binary was not found. Run `bun run build` in apps/shob-code before publishing.")
+  console.error("Shob CLI binary was not found. Run `bun run build` in apps/megon-code before publishing.")
   process.exit(1)
 }
 

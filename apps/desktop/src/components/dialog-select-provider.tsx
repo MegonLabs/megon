@@ -5,15 +5,15 @@ import { Dialog } from "@shob-ai/ui/dialog"
 import { List } from "@shob-ai/ui/list"
 import { Tag } from "@shob-ai/ui/tag"
 import { ProviderIcon } from "@shob-ai/ui/provider-icon"
-import { DialogConnectProvider } from "./shob-settings/dialog-connect-provider"
+import { DialogConnectProvider } from "./megon-settings/dialog-connect-provider"
 import { useLanguage } from "@/context/language"
-import { DialogCustomProvider } from "./shob-settings/dialog-custom-provider"
+import { DialogCustomProvider } from "./megon-settings/dialog-custom-provider"
 import {
   CUSTOM_ANTHROPIC_COMPATIBLE_PRESET,
   DialogOpenAICompatible,
   OPENCLAUDE_OPENAI_COMPATIBLE_PRESET,
   SHOB_OPENAI_COMPATIBLE_PRESET,
-} from "./shob-settings/dialog-openai-compatible"
+} from "./megon-settings/dialog-openai-compatible"
 
 const CUSTOM_ID = "_custom"
 const SHOB_ID = "_shob"

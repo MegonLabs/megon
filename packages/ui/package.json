@@ -1,6 +1,6 @@
 {
-  "name": "@shob-ai/ui",
-  "version": "1.4.3",
+  "name": "@megon-ai/ui",
+  "version": "1.0.0",
   "type": "module",
   "license": "MIT",
   "exports": {
@@ -43,8 +43,8 @@
   },
   "dependencies": {
     "@kobalte/core": "0.13.11",
-    "@shob-ai/sdk": "file:../sdk/js",
-    "@shob-ai/util": "file:../util",
+    "@megon-ai/sdk": "file:../sdk/js",
+    "@megon-ai/util": "file:../util",
     "@pierre/diffs": "1.2.2",
     "@shikijs/transformers": "3.9.2",
     "@solid-primitives/bounds": "0.1.3",

@@ -1,12 +1,12 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "shob-code",
-  "version": "0.0.2",
+  "name": "megon-code",
+  "version": "1.0.0",
   "type": "module",
   "license": "MIT",
   "description": "Shob – an AI agent that delivers high-quality coding & automation work",
   "bin": {
-    "shob": "./bin/shob.cjs"
+    "shob": "./bin/megon.cjs"
   },
   "files": [
     "bin",

@@ -98,7 +98,7 @@ async function improvePrompt(input: z.infer<typeof PromptImproveBody>) {
       ...(model.providerID.startsWith("shob")
         ? {
             "x-shob-project": Instance.project.id,
-            "x-shob-session": sessionID,
+            "x-megon-session": sessionID,
             "x-shob-request": requestID,
             "x-shob-client": Flag.SHOB_CLIENT,
           }

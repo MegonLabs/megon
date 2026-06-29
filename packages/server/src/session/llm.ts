@@ -346,7 +346,7 @@ export namespace LLM {
         ...(input.model.providerID.startsWith("shob")
           ? {
               "x-shob-project": Instance.project.id,
-              "x-shob-session": input.sessionID,
+              "x-megon-session": input.sessionID,
               "x-shob-request": input.user.id,
               "x-shob-client": Flag.SHOB_CLIENT,
             }

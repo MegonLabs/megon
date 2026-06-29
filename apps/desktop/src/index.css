@@ -624,7 +624,7 @@ b {
 }
 
 /* Shimmer effect for the currently running session's title */
-.shob-session-shimmer {
+.megon-session-shimmer {
   background: linear-gradient(
     100deg,
     var(--text-weak) 0%,
@@ -638,10 +638,10 @@ b {
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
-  animation: shob-session-shimmer 1.6s linear infinite;
+  animation: megon-session-shimmer 1.6s linear infinite;
 }
 
-@keyframes shob-session-shimmer {
+@keyframes megon-session-shimmer {
   0% {
     background-position: 150% 0;
   }
@@ -651,7 +651,7 @@ b {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .shob-session-shimmer {
+  .megon-session-shimmer {
     animation: none;
   }
 }

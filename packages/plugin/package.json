@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "@shob-ai/plugin",
-  "version": "1.15.5",
+  "name": "@megon-ai/plugin",
+  "version": "1.0.0",
   "type": "module",
   "license": "MIT",
   "scripts": {
@@ -17,7 +17,7 @@
     "dist"
   ],
   "dependencies": {
-    "@shob-ai/sdk": "file:../sdk/js",
+    "@megon-ai/sdk": "file:../sdk/js",
     "effect": "4.0.0-beta.65",
     "zod": "4.4.3"
   },

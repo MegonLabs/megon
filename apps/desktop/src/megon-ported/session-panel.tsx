@@ -5,7 +5,7 @@ import { FileIcon } from "@/components/ui/file-icon"
 import { nativeApi } from "@/services/native"
 import { Icon } from "@/components/ui/icon"
 import FileTree from "@/components/FileTree"
-import { ResizeHandle } from "@/shob-ported/resize-handle"
+import { ResizeHandle } from "@/megon-ported/resize-handle"
 
 type DiffKind = "add" | "del" | "mix"
 type DiffStats = { additions: number; deletions: number }

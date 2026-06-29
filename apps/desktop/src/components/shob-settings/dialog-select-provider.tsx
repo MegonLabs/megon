@@ -5,15 +5,15 @@ import { Dialog } from "@shob-ai/ui/dialog"
 import { List } from "@shob-ai/ui/list"
 import { Tag } from "@shob-ai/ui/tag"
 import { ProviderIcon } from "@shob-ai/ui/provider-icon"
-import { DialogConnectProvider } from "./shob-settings/dialog-connect-provider"
+import { DialogConnectProvider } from "./dialog-connect-provider"
 import { useLanguage } from "@/context/language"
-import { DialogCustomProvider } from "./shob-settings/dialog-custom-provider"
+import { DialogCustomProvider } from "./dialog-custom-provider"
 import {
   CUSTOM_ANTHROPIC_COMPATIBLE_PRESET,
   DialogOpenAICompatible,
   OPENCLAUDE_OPENAI_COMPATIBLE_PRESET,
   SHOB_OPENAI_COMPATIBLE_PRESET,
-} from "./shob-settings/dialog-openai-compatible"
+} from "./dialog-openai-compatible"
 
 const CUSTOM_ID = "_custom"
 const SHOB_ID = "_shob"
@@ -142,13 +142,7 @@ export const DialogSelectProvider: Component = () => {
             <Show when={i.id === ANTHROPIC_COMPATIBLE_ID}>
               <Tag>{language.t("settings.providers.tag.custom")}</Tag>
             </Show>
-            <Show when={i.id === "opencode"}>
-              <Tag>{language.t("dialog.provider.tag.recommended")}</Tag>
-            </Show>
             <Show when={note(i.id)}>{(value) => <div class="text-14-regular text-text-weak">{value()}</div>}</Show>
-            <Show when={i.id === "opencode-go"}>
-              <Tag>{language.t("dialog.provider.tag.recommended")}</Tag>
-            </Show>
           </div>
         )}
       </List>

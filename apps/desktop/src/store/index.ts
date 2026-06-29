@@ -14,7 +14,7 @@ import {
 } from '../utils';
 import { CLI_CATALOG, DEFAULT_CLI_ID, type CliProbeResult } from '../config/check';
 import type { Project, Session, CliTool } from '../types';
-import { toLocalShobSession } from '@/utils/megon-session';
+import { toLocalShobSession } from '@/utils/shob-session';
 import type { WorkTerminal, TerminalLayout } from '../electron';
 
 const SESSION_ACTIVITY_PERSIST_THROTTLE_MS = 15_000;

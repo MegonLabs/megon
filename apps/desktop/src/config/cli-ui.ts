@@ -1,4 +1,4 @@
-import defaultIcon from '../assets/icon/megon.png';
+import defaultIcon from '../assets/icon/shob.png';
 import { CLI_CATALOG, getCatalogItem } from './check';
 
 export const CLI_LOGO_BY_ICON_KEY: Record<string, string> = {

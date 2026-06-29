@@ -2,7 +2,7 @@ import fsSync from "node:fs";
 import path from "node:path";
 import os from "node:os";
 
-const resolveCommandCache = new Map<string, string | null>();
+export const resolveCommandCache = new Map<string, string | null>();
 
 export function resolveCommand(command: string, envPath = process.env.PATH || "", platform = process.platform) {
   const cacheKey = `${command}:${envPath}:${platform}`;

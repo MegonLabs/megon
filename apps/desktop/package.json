@@ -1,5 +1,5 @@
 {
-  "name": "shob-desktop",
+  "name": "megon-desktop",
   "private": true,
   "description": "Desktop app for running and organizing multiple CLI agent sessions in one workspace.",
   "author": "shobcoder",
@@ -84,9 +84,9 @@
   },
   "dependencies": {
     "@lydell/node-pty": "^1.2.0-beta.12",
-    "@shob-ai/sdk": "file:../../packages/sdk/js",
-    "@shob-ai/ui": "file:../../packages/ui",
-    "@shob-ai/util": "file:../../packages/util",
+    "@megon-ai/sdk": "file:../../packages/sdk/js",
+    "@megon-ai/ui": "file:../../packages/ui",
+    "@megon-ai/util": "file:../../packages/util",
     "chokidar": "^5.0.0",
     "electron-store": "^11.0.2",
     "electron-updater": "^6.8.3"
@@ -100,7 +100,7 @@
     "@fontsource-variable/inter": "^5.2.8",
     "@fontsource-variable/jetbrains-mono": "^5.2.8",
     "@kobalte/core": "^0.13.7",
-    "@shob-ai/server": "file:../../packages/server",
+    "@megon-ai/server": "file:../../packages/server",
     "@solid-primitives/i18n": "^2.2.1",
     "@solid-primitives/storage": "^4.3.4",
     "@solidjs/router": "^0.15.3",

@@ -5,7 +5,7 @@ import {
   sessionHasUserPrompt,
   toLocalShobSession,
   type ShobSessionLike,
-} from "../src/utils/shob-session.ts"
+} from "../src/utils/megon-session.ts"
 
 const session = (overrides: Partial<ShobSessionLike> = {}): ShobSessionLike => ({
   id: "ses_empty",

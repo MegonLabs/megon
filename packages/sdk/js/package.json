@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "@shob-ai/sdk",
+  "name": "@megon-ai/sdk",
   "version": "1.15.13",
   "type": "module",
   "license": "MIT",

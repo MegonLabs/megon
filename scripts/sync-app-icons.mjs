@@ -9,7 +9,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, "..");
 const appDir = path.join(rootDir, "apps", "desktop");
 
-const sourceIcon = path.join(appDir, "src", "assets", "icon", "shob.png");
+const sourceIcon = path.join(appDir, "src", "assets", "icon", "megon.png");
 const devSourceIcon = path.join(appDir, "src", "assets", "icon", "olova-dev.png");
 const iconDir = path.join(appDir, "electron", "icons");
 const devIconDir = path.join(appDir, "electron", "dev-icons");
@@ -83,7 +83,7 @@ async function main() {
   await syncIco();
   await syncIcns();
   await syncDevTaskbarIcon();
-  console.log("[icons] synced app icons from apps/desktop/src/assets/icon/shob.png");
+  console.log("[icons] synced app icons from apps/desktop/src/assets/icon/megon.png");
 }
 
 main().catch((error) => {

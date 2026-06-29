@@ -1,7 +1,11 @@
-import { describe, expect, test } from "bun:test";
-import { detectShellsInternal, type ShellDetectionDeps } from "../electron/shell-detector.ts";
+import { describe, expect, test, beforeEach } from "bun:test";
+import { detectShellsInternal, type ShellDetectionDeps, resolveCommandCache } from "../electron/shell-detector.ts";
 
 describe("shell detector", () => {
+  beforeEach(() => {
+    resolveCommandCache.clear();
+  });
+
   test("resolves Windows shells in correct priority order", () => {
     const mockExists = new Set<string>([
       "C:\\Program Files\\Git\\bin\\bash.exe",
@@ -20,12 +24,12 @@ describe("shell detector", () => {
       },
       existsSync: (p) => mockExists.has(p),
       resolveCommand: (cmd) => {
-        if (cmd === "git.exe") return null;
-        if (cmd === "bash.exe") return null;
-        if (cmd === "pwsh.exe") return "C:\\Program Files\\PowerShell\\7\\pwsh.exe";
-        if (cmd === "powershell.exe") return "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe";
-        if (cmd === "cmd.exe") return "C:\\Windows\\System32\\cmd.exe";
-        return null;
+        if (cmd === "git.exe") return "C:\\Program Files\\Git\\cmd\\git.exe";
+        if (cmd === "bash.exe") return "C:\\Program Files\\Git\\bin\\bash.exe";
+        if (cmd.includes("pwsh.exe")) return "C:\\Program Files\\PowerShell\\7\\pwsh.exe";
+        if (cmd.includes("powershell.exe")) return "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe";
+        if (cmd.includes("cmd.exe")) return "C:\\Windows\\System32\\cmd.exe";
+        return cmd;
       },
     };
 

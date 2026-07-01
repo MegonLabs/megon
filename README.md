@@ -1,6 +1,6 @@
 <div align="center">
 
-# Shob — The AI Agent Workspace
+# Megon — The AI Agent Workspace
 
 <table>
   <tr>
@@ -18,7 +18,19 @@ Shob is an AI agent workspace designed for developers who want to run multiple A
 
 ---
 
-## Why Shob?
+## Star History
+
+<a href="https://www.star-history.com/?repos=MegonLabs%2Fmegon&type=date&legend=bottom-right">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=MegonLabs/megon&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=MegonLabs/megon&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=MegonLabs/megon&type=date&legend=top-left" />
+ </picture>
+</a>
+
+---
+
+## Why Megon?
 
 ### Parallel AI Sessions
 
